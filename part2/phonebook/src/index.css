@@ -1,0 +1,19 @@
+.success-msg{
+    color: green;
+}
+
+.error-msg {
+    color: red;
+}
+
+.success-msg, .error-msg{
+    
+    padding: 1em;
+    margin: 10px auto;
+    border-style: solid;
+    border-radius: 5px;
+
+    background-color: lightgoldenrodyellow;
+    font-size: 16px;
+
+}
