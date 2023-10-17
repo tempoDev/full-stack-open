@@ -56,12 +56,20 @@ function App() {
           )
           setPersons(updated)
         })
+        .catch( (error) => {
+          error = JSON.parse(error.request.response)
+          setMessage( 'ERROR: ' + error.message)
+        })
       }
     } else {
       PersonsServices.addNew(newPerson)
       .then( returnedPerson => {
         setPersons(persons.concat(returnedPerson))
         setMessage(`${returnedPerson.name} added to PhoneBook`)
+      })
+      .catch( (error) => {
+        error = JSON.parse(error.request.response)
+        setMessage( 'ERROR: ' + error.message)
       })
     }
 
