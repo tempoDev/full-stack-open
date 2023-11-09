@@ -26,6 +26,7 @@ const App = () => {
     if( loggedUser ){
       const user = JSON.parse(loggedUser)
       setUser(user)
+      blogService.setToken(user.token)
     }
   }, [])
 
@@ -74,7 +75,7 @@ const App = () => {
 
       <h2>blogs</h2>
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} addLike={addLike} removeBlog={removeBlog} />
+        <Blog key={blog.id} user={user} blog={blog} addLike={addLike} removeBlog={removeBlog} />
       )}
     </div>
   )

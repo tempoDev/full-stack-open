@@ -6,7 +6,7 @@ export default function BlogForm({ createBlog, setMessage, refreshBlogs }) {
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
 
-  const addBlog = (event) => {
+  const addBlog = async (event) => {
     event.preventDefault()
     createBlog({
       title: title,
@@ -14,11 +14,11 @@ export default function BlogForm({ createBlog, setMessage, refreshBlogs }) {
       url: url
     })
 
+    await refreshBlogs()
     setMessage('Blog added!', 'success-msg')
     setAuthor('')
     setTitle('')
     setUrl('')
-    refreshBlogs()
   }
 
   return (
