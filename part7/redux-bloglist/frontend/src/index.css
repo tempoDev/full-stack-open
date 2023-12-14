@@ -1,0 +1,28 @@
+.success-msg{
+    color: green;
+}
+
+.error-msg {
+    color: red;
+}
+
+.message_container{
+    
+    padding: 1em;
+    margin: 10px auto;
+    border-style: solid;
+    border-radius: 5px;
+
+    background-color: lightgoldenrodyellow;
+    font-size: 16px;
+
+}
+
+button {
+    margin: .7em;
+}
+
+.cancel_button, .delete_button {
+    background-color: red;
+    color: white;
+}
