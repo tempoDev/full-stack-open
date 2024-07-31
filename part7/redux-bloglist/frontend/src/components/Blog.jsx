@@ -3,14 +3,18 @@ import PropTypes from 'prop-types'
 import { setNotification } from '../reducers/notificationReducer'
 import { useDispatch, useSelector } from 'react-redux'
 import { addLike, deleteBlog } from '../reducers/blogReducer'
+import { useParams } from 'react-router-dom'
 
-const Blog = ({ user, blog, removeBlog }) => {
+const Blog = () => {
 
-  const [visible, setVisible] = useState(false)
+  //const [visible, setVisible] = useState(false)
 
-  const hideWhenVisible = { display: visible ? 'none' : '' }
-  const showWhenVisible = { display: visible ? '' : 'none' }
+  // const hideWhenVisible = { display: visible ? 'none' : '' }
+  // const showWhenVisible = { display: visible ? '' : 'none' }
 
+  const id = useParams().id
+  const blogs = useSelector( state => state.blogs)
+  const blog = blogs.find( b => b.id === id )
   const authUser = useSelector( state => state.login)
   const dispatch = useDispatch()
 
@@ -18,7 +22,7 @@ const Blog = ({ user, blog, removeBlog }) => {
     addLike : PropTypes.func.isRequired
   }
 
-  const blogStyle = {
+  /*const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
     border: 'solid',
@@ -28,7 +32,7 @@ const Blog = ({ user, blog, removeBlog }) => {
 
   const toggleVisibility = () => {
     setVisible(!visible)
-  }
+  }*/
 
   const handleLike = () => {
     dispatch(addLike(blog))
@@ -45,20 +49,16 @@ const Blog = ({ user, blog, removeBlog }) => {
   const showRemove = authUser && blog.user.username === authUser.username
   console.log('AUTH DELETE', showRemove)
   return (
-    <div style={blogStyle} className='blog'>
-      <div style={hideWhenVisible} className='basic-info'>
-        {blog.title} {blog.author}
-        <button className='show_details' onClick={toggleVisibility}>View</button>
+    <div className='blog'>
+      <div className='basic-info'>
+        <h2>{blog.title}</h2>
       </div>
-      <div className='more_info' style={showWhenVisible}>
-        <ul>
-          <li>{blog.title} - {blog.author}</li>
-          <li>{blog.url}</li>
-        </ul>
+      <div className='more_info'>
+        <p>{blog.url}</p>
         <p>
           { blog.likes } likes <button className='like_button' onClick={handleLike} >Like</button>
         </p>
-        <button onClick={toggleVisibility}>Hide</button>
+        <p>Added by {blog.user.name}</p>
         {
           showRemove && <button className="delete_button" onClick={handleDelete}>Delete</button>
         }

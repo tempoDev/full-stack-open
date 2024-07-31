@@ -5,12 +5,12 @@ const middleware = require('../utils/middleware')
 const jwt = require('jsonwebtoken')
 
 blogRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({}).populate( 'user', {name: 1, username: 1, id: 1})
+  const blogs = await Blog.find({}).populate("comment").populate( 'user', {name: 1, username: 1, id: 1})
   response.json(blogs)
 })
 
 blogRouter.get('/:id', async (request, response) => {
-  const blog = await Blog.findById(request.params.id)
+  const blog = await Blog.findById(request.params.id).populate("comment")
 
   if(blog){
     response.json(blog.toJSON())
@@ -74,15 +74,17 @@ blogRouter.delete('/:id', async (request, response) => {
   
 blogRouter.put('/:id', async (request, response) => {
 
-  const blog = request.body
-  const id = request.params.id
+  const body = request.body;
 
-  const blogUpdated = await Blog.findByIdAndUpdate(id, blog, {new: true})
-  .populate("user", {username: 1, name: 1})
-  
-  blogUpdated
-  ? response.status(200).json(blogUpdated.toJSON())
-  : response.status(400).end()
+  const blog = {
+    title: body.title,
+    author: body.author,
+    url: body.url,
+    likes: body.likes ? body.likes : 0,
+  };
+
+  await Blog.findByIdAndUpdate(request.params.id, blog, { new: true });
+  response.json(blog);
 })
 
 module.exports = blogRouter

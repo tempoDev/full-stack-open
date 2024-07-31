@@ -31,7 +31,7 @@ export const login = (username, password) => {
       BlogService.setToken(user.token)
 
       dispatch(loginUser(user))
-      dispatch(setNotification(`${username} logged in!aa`, 5))
+      dispatch(setNotification(`${username} logged in! `, 5))
     } catch (error) {
       dispatch(setNotification('Wrong credentials', 5))
     }

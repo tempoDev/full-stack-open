@@ -8,6 +8,7 @@ const loginRouter = require('./controllers/login')
 const logger = require('./utils/logger')
 const middleware  = require('./utils/middleware')
 const mongoose = require('mongoose')
+const commentRouter = require('./controllers/comments')
 
 logger.info('connecting to', config.MONGODB_URI)
 
@@ -28,6 +29,7 @@ app.use(middleware.tokenExtractor)
 app.use('/api/blogs', middleware.userExtractor, blogsRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
+app.use('/api/blogs', commentRouter)
 
 if (process.env.NODE_ENV === 'test') {
     console.log("Run in TEST MODE")
