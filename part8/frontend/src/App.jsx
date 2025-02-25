@@ -3,8 +3,8 @@ import Authors from "./components/Authors";
 import Books from "./components/Books";
 import NewBook from "./components/NewBook";
 import Login from "./components/Login";
-import { useApolloClient, useQuery } from "@apollo/client";
-import { ALL_BOOKS, USER } from "./queries";
+import { useApolloClient, useQuery, useSubscription } from "@apollo/client";
+import { ALL_BOOKS, BOOK_ADDED, USER } from "./queries";
 import Recommended from "./components/Recommended";
 
 export const updateCache = (cache, query, bookAdded ) => {
@@ -37,6 +37,28 @@ const App = () => {
       setToken(storedToken)
     }
   }, [])
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data, client }) => {
+      
+      console.log(data)
+      const addedBook = data.data.bookAdded
+      
+      try {
+        window.alert(`${addedBook.title} book has been added!!`)
+        updateCache(client.cache, { query: ALL_BOOKS }, addedBook)}
+      catch {
+        console.log('error')
+      }
+
+      client.cache.updateQuery({ query: ALL_BOOKS }, ({ 
+        allBooks }) => {        
+          return {          
+            allBooks: allBooks.concat(addedBook),        
+          }      
+        })    
+      }
+  })
 
   const logout = () => {
     setToken(null)

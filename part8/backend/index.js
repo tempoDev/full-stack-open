@@ -7,7 +7,7 @@ const JWT_SECRET = process.env.SECRET || "supersecreto";
 const logger = require("./utils/logger");
 const config = require("./utils/config");
 const mongoose = require("mongoose");
-const { UserInputError } = require("apollo-server-core");
+const { UserInputError, ApolloServerPluginDrainHttpServer } = require("apollo-server-core");
 const Book = require("./models/book");
 const Author = require("./models/author");
 const User = require("./models/user");
@@ -15,8 +15,11 @@ const { expressMiddleware } = require("@apollo/server/express4");
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
-const { PubSub } = require('graphql-subscriptions');
+const { PubSub } = require("graphql-subscriptions")
 const { subscribe } = require("diagnostics_channel");
+const { WebSocketServer } = require("ws");
+const { useServer } = require("graphql-ws/lib/use/ws");
+const { makeExecutableSchema } = require("@graphql-tools/schema");
 const pubsub = new PubSub()
 
 logger.info("connecting to", config.MONGODB_URI);
@@ -209,6 +212,16 @@ const resolvers = {
       });
     },
   },
+  Author: {
+    bookCount: async(root) => {
+      const author = await Author.findOne({ name: root.name})
+      const books = await Book.find({ author: author.id})
+
+      console.log(books)
+
+      return books.length
+    }
+  },
   Mutation: {
     addBook: async (root, args) => {
       const { title, author, published, genres } = args;
@@ -241,7 +254,8 @@ const resolvers = {
         });
       }
 
-      pubsub.publish('BOOK_ADDED', {bookAdded: book})
+      const populatedBook = await Book.findById(book.id).populate('author')
+      pubsub.publish('BOOK_ADDED', { bookAdded: populatedBook }); // ✅
 
       return await book.populate("author");
     },
@@ -307,13 +321,33 @@ const resolvers = {
   }
 };
 
+const schema = makeExecutableSchema({ typeDefs, resolvers})
+
 const start = async () => {
   const app = express();
   const httpServer = http.createServer(app);
 
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: '/graphql'
+  })
+
+  const serverCleanup = useServer({ schema }, wsServer)
+
   const server = new ApolloServer({
-    typeDefs,
-    resolvers,
+    schema,
+    plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+      {
+        async serverWillStart(){
+          return {
+            async drainServer(){
+              await serverCleanup.dispose()
+            }
+          }
+        }
+      }
+    ]
   });
 
   await server.start();
@@ -335,6 +369,8 @@ const start = async () => {
     })
   );
 
+  app.use(express.static('build'))
+  
   const port = 4000
   httpServer.listen( port, () => console.log(`Server ready at http://localhost:${port}`))
 };

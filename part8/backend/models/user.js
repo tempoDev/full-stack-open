@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   },
   favoriteGenre: {
     type: String,
-    required: true,
+    minlength: 3,
   },
 });
 
